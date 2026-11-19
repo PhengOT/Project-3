@@ -38,7 +38,8 @@ _print_line_start = True
 
 def print(*args, **kwargs): 
 
-    """Print output with a timestamp at the start of each output line.""" 
+    # Adds a time stamp to the end of every output
+    """Prints output with a timestamp at the start of each output line."""  
 
     global _print_line_start 
 
@@ -46,7 +47,7 @@ def print(*args, **kwargs):
 
         builtins.print(datetime.now().strftime("[%H:%M:%S] "), end="") 
 
-    builtins.print(*args, **kwargs)           # Like a typewrite adds a time to the text
+    builtins.print(*args, **kwargs)           # Words are typed
 
     message = kwargs.get("sep", " ").join(str(arg) for arg in args) + kwargs.get("end", "\n") 
 
