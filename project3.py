@@ -1,0 +1,909 @@
+""" 
+
+project_3.py 
+
+Shreya Nidta  
+
+Yupheng Ormonde-Thao 
+
+Jeremy Burt 
+
+ 
+
+little game about a deck of cards :) 
+
+ 
+
+""" 
+
+# imports modules needed to end the game when the player runs out of stars and to randomly determine inventory rewards 
+
+import sys 
+
+import random 
+
+import builtins 
+
+import builtins 
+
+import time 
+
+from datetime import datetime 
+
+ 
+class PlayerInventory():
+    """
+    Represents the player Inventory.
+
+    Attributes:
+        determined by random chance
+    """
+    def __init__(self,swag,stars):
+        for key,val in swag.items():
+            setattr(self, key, val)
+        self.stars = stars
+    def print_inventory(self):
+        """
+            Print the user inventory
+            
+            Parameters:
+            ----------
+            None
+        """    
+        for key, value in self.__dict__.items():
+            if key != "knife" and key != "stars":
+                print(f"You have {value} {key}s")
+            if key == "stars":
+                print("[",end="") # print stars for each life the player still has 
+                for y in range(self.stars):  
+                    print(" ✮ ",end = "") # Put spaces for the "lives" player has lost 
+                if (5 - self.stars) > 0: 
+                    for _ in range(5-self.stars): 
+                        print(" ",end = "") 
+                print("]")     
+            if key == "knife":
+                print("You also have a {value}")
+class GameOfFate(PlayerInventory):
+    """Represents a simple bank account for managing funds.
+
+    Attributes:
+        choice (int): Choice of game to play.
+        attributes inherited from Player Inventory
+    """
+    def __init__(self,choice,swag,stars):
+        super().__init__(swag,stars)
+        self.choice = choice
+        self.shuffled = []
+    def init_deck(self):
+        """
+            Creates a deck of cards and randomly shuffles them
+        
+            Parameters:
+            ----------
+            None
+        """
+        suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
+        ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King', 'Ace']
+        deck = [(rank, suit) for suit in suits for rank in ranks]
+        self.shuffled = tuple(random.sample(deck, len(deck)))
+    def play_game(self):
+        """
+            Begins the a game of cards and chance
+                
+            Parameters:
+            ----------
+            None
+        """
+        self.init_deck()
+        if self.choice == 1:
+            print("You have chosen bravely")
+            if "gold_coin" in self.__dict__:
+                print("We'll play high card")
+                print(f"The house will match your of {self.gold_coin}")
+                house_card = self.shuffled.pop()
+                player_card = self.shuffled.pop()
+                print(f"The house draws a {house_card[0][0]} of {house_card[0][1]}")
+                print(f"You draw a {player_card[0][0]} of {player_card[0][1]}")
+                if house_card[0][1] < player_card[0][1]:
+                    print(f"You win {self.gold_coin*2}")
+                    self.gold_coin += self.gold_coin * 2
+                else:
+                    print("Sorry old chap, the stars were not in your favor today")
+            elif "life" in self.__dict__:
+                print("We'll play high card")
+                print(f"You'll have an option to convert your {self.life} points into stars")
+                house_card = self.shuffled.pop()
+                player_card = self.shuffled.pop()
+                print(f"The house draws a {house_card[0][0]} of {house_card[0][1]}")
+                print(f"You draw a {player_card[0][0]} of {player_card[0][1]}")
+                if house_card[0][1] < player_card[0][1]:
+                    self.stars += self.life
+                    print(f"You now have {self.stars} life points")
+                else:
+                    self.stars += 1
+                    print("You've been awarded 1 star")
+        else:
+            print("I wish things had turned out better for you, sorry old chap")
+        super().print_inventory()
+
+
+
+_print_line_start = True 
+
+ 
+
+def print(*args, **kwargs): 
+    """
+        Print output with a timestamp at the start of each output line.
+
+        Parameters
+        ----------
+        None
+    """
+
+    
+
+    global _print_line_start 
+
+    if _print_line_start: 
+
+        builtins.print(datetime.now().strftime("[%H:%M:%S] "), end="") 
+
+    builtins.print(*args, **kwargs)           # Like a typewrite adds a time to the text
+
+    message = kwargs.get("sep", " ").join(str(arg) for arg in args) + kwargs.get("end", "\n") 
+
+    for character in message: 
+
+        builtins.print(character, end="", flush=True) 
+
+        time.sleep(0.02)                        # This shows how fast the text will come out
+
+    _print_line_start = kwargs.get("end", "\n") == "\n" 
+
+ 
+
+stars = 5 
+
+user_inventory = {} 
+
+def print_health(health: int) -> None: #defines a function named print_health with arguments "health"   
+
+    """ 
+
+    displays the user's remaining stars  and ends the game if the player runs out of stars  
+
+ 
+
+    Parameters 
+
+    ---------- 
+
+    health : int 
+
+        the number of stars the player currently has  
+
+    """ 
+
+    global stars # stars is a global variable, but global variables can't be accessed in a function the keyword global is used 
+
+    print("[",end="") 
+
+    # print stars for each life the player still has 
+
+    for y in range(health):  
+
+        print(" ✮ ",end = "") 
+
+    # Put spaces for the "lives" player has lost 
+
+    if (5 - health) > 0: 
+
+        for _ in range(5-health): 
+
+            print(" ",end = "") 
+
+    print("]") 
+
+    if stars <= 0: 
+
+        print("YOU FAILED, goodbye") 
+
+        sys.exit(0) 
+
+def swag_menu(swag) -> dict: 
+
+    """ 
+
+    Randomly selects a reward and adds it to the player's inventory. 
+
+    Possible rewards include an extra life, knife, or gold coins. 
+
+ 
+
+    Parameters 
+
+    ---------- 
+
+    swag : dict 
+
+        the player's current inventory 
+
+ 
+
+    Returns 
+
+    ------- 
+
+    dict 
+
+        the updated player inventory  
+
+    """ 
+
+    # These are the possible items the player can collect 
+
+    swag_dict = { 
+
+                  "life":1, 
+
+                  "knife":"bladed knife", 
+
+                  "gold_coin": 0 
+
+                } 
+
+    num = random.randint(1,10) 
+
+    # Each case represents a possible reward based on the randomly selected number 
+
+    match num: 
+
+        case 1: 
+
+        # Gives the player an extra life or increases their existing life count 
+
+            if "life" not in swag.keys(): 
+
+                swag["life"] = 1 
+
+            else: 
+
+                swag["life"] += 1 
+
+        case 3: 
+
+            # Gives the player a knife if they do not already have one, if they already have a knife, they have another chance to receive a life or gold coin 
+
+            if "knife" not in swag.keys(): 
+
+                    swag["knife"] = swag_dict["knife"] 
+
+            else: 
+
+                a = random.randint(0,10) 
+
+                if a < num: 
+
+                    swag["life"] = swag.get("life", 0) + 1 
+
+                else: 
+
+                    swag["gold_coin"] = swag.get("gold_coin", 0) +1 
+
+        case 7: 
+
+        # Adds a gold coin to the player's inventory 
+
+            if "gold_coin" not in swag.keys(): 
+
+                swag["gold_coin"] = 1 
+
+            else: 
+
+                swag["gold_coin"] +=1 
+
+        case _: 
+
+        # If the random number does not match a reward, the player receives nothing 
+
+            print("Luck was not with you, you didn't earn anything that could be used in the game") 
+
+            return swag 
+
+    return swag 
+
+             
+
+# this function gives the user apples once they hit a certain amount of stars and checks whether the player's star count is high enough to qualify for a random inventory reward 
+
+def apples(inventory: dict) -> dict: 
+
+    """ 
+
+    Checks whether the player has enough stars to receive a random 
+
+    inventory reward. 
+
+ 
+
+    Returns 
+
+    ------- 
+
+    dict 
+
+        The player's inventory, updated if they receive a reward. 
+
+    """ 
+
+    # Allows the function to check the player's current stars 
+
+    global stars 
+
+    try:     
+
+        if stars >= 3: 
+
+            inventory = swag_menu(inventory) 
+
+    except TypeError:  
+
+        print("There was an error with accessing the player's inventory") 
+
+    return inventory 
+
+ 
+
+ 
+
+# asks for user's name and welcomes them  
+
+print("Enter your name:") 
+
+name = input() 
+
+print(f"Welcome, {name}, would you like to enter the realm of cards?\n[1] yes [2] no.") 
+
+ 
+
+while True: 
+
+    # Creates an infinite loop that asks a user to select a choice until they select 1 
+
+    user_input1 = ""  
+
+    while True:  #makes sure the player only types a number in  
+
+        try: 
+
+            user_input1 = int(input()) 
+
+            break 
+
+        except ValueError: 
+
+            print("Invalid input. Please enter a number.") 
+
+ 
+
+    if user_input1 == 1: 
+
+        break # exits loop 
+
+    elif user_input1 == 2: 
+
+        print("Try again.") 
+
+ 
+
+# this section explains what happens and tells the user about the 'lives' they have and what happens when they run out 
+
+print("· · ─ ·✶· ─ · · Congratulations! You’ve entered the realm of the deck of cards. · · ─ ·✶· ─ · ·") 
+
+print("It’s been a chaotic past few years, the suits are missing some of their members.") 
+
+print("You start with 5 stars, and you can lose some and gain some. Watch out, if you lose all five you fail.") 
+
+print_health(stars) 
+
+print("Your help is needed, are you willing?") 
+
+print("[1] yes [2] no.") 
+
+ 
+
+# creates an infinite loop that asks the user to help 
+
+while True:  
+
+    user_input2 = ""  
+
+    while True:  #makes sure the player only types a number in  
+
+        try: 
+
+            user_input2 = int(input()) 
+
+            break 
+
+        except ValueError: 
+
+            print("Invalid input. Please enter a number.") 
+
+    if user_input2 == 1: 
+
+        break 
+
+ 
+
+    elif user_input2 == 2: 
+
+        print("How rude. Try again.") 
+
+ 
+
+# this section introduces the main goal of the game and the first hallway  
+
+print("Your help is much appreciated.") 
+
+print("The goal is to find all the missing members of each suit. You ascend the spiral red staircase and end up in front of a hallway.") 
+
+print("There are thirteen doors with heart emblems. One of these doors are marked with a sparkly red X. Do you wish to continue forward?") 
+
+print("[1] yes [2] no") 
+
+ 
+
+# This section is the start of the questions and first door 
+
+user_input4 = ""  
+
+while True:  #makes sure the player only types a number in  
+
+    try: 
+
+        user_input4 = int(input()) 
+
+        break 
+
+    except ValueError: 
+
+        print("Invalid input. Please enter a number.") 
+
+if user_input4 == 1:  # user chose yes and is introduced to the jokers 
+
+    print("You continue forward towards the doors.") 
+
+    print("As you walk, the Orange Joker appears out from a burst of orange glitter.") 
+
+    print("'Hello young traveler! You must be here to find the missing card in this suit! Unluckily for you, I have kidnapped them! Bahahahaha! I have a joke for you.'") 
+
+    print("'Why did the king go to the doctor? Because he was feeling a little flushed!'")  
+
+    print("'He's also feeling scared as his fate rests in your hands.'") 
+
+ 
+
+    # the Orange Joker runs away and the Green Joker explains the first challenge  
+
+    print("The Orange Joker runs away, and the Green Joker appears out of thin air.\n'My friend, in order to escape you must finish all of the challenges ahead, starting off by freeing the King of Hearts\nwho is locked behind his door. To free him you must answer a question.'") 
+
+    print("'How many planets are there?(including pluto)'") 
+
+    # a correct answer gives the player a star and sets the King of Hearts free 
+
+    user_input5 = ""  
+
+    while True:  #makes sure the player only types a number in  
+
+        try: 
+
+            user_input5 = int(input()) 
+
+            break 
+
+        except ValueError: 
+
+            print("Invalid input. Please enter a number.") 
+
+    if user_input5 == 9: 
+
+        print("Congrats! You passed!") 
+
+        print("You manage to answer the question and set the King of Hearts free. He is reunited with the rest of his suit.")  
+
+        print("Hooray! Everyone thanks you and throws a banquet in your honor.") 
+
+        stars += 1 
+
+        print("You have unlocked a secret opportunity for Inventory") 
+
+        user_inventory = apples(user_inventory) 
+
+        print_health(stars) 
+
+ 
+
+    else: # an incorrect answer costs the player one star but the king is still freed 
+
+        print("Incorrect. You lose a star. If you have any extra life in your inventory it will be deducted") 
+
+        print("Even though you failed to answer the question, the Green Joker somehow sets the King of Hearts free.") 
+
+        print("He is reunited with the rest of his suit, no thanks to you.")  
+
+        stars -= 1 
+
+        # Checks whether the player has extra lives in their inventory that can prevent a star loss 
+
+        if "life" in user_inventory.keys(): 
+
+            if user_inventory["life"] > 1: 
+
+                stars += 1 
+
+                user_inventory["life"] -= 1 
+
+        print_health(stars) 
+
+ 
+
+# if the player picks no they lose a star but are still forced to continue forward  
+
+elif user_input4 == 2: 
+
+    print("You must continue forward regardless. A point is taken off for your lack of bravery.") 
+
+    stars -= 1 
+
+    print_health(stars) 
+
+ 
+
+    # Jokers appear and explain the challenge  
+
+    print("The Orange Joker appears out of nowhere from a burst of orange glitter.") 
+
+    print("'Hello young traveler! You must be here to find the missing card in this suit!'") 
+
+    print("'Unluckily for you, I have kidnapped them! Bahahahaha! I have a joke for you.'") 
+
+    print("'Why did the king go to the doctor? Because he was feeling a little flushed!'")  
+
+    print("'He's also feeling scared as his fate rests in your hands.'") 
+
+    print("The Orange Joker runs away, and the Green Joker appears out of thin air") 
+
+    print("My friend, in order to escape you must finish all of the challenges ahead\nstarting off by freeing the King of Hearts who is locked behind his door.\nTo free him you must answer a question.'") 
+
+    print("'How many planets are there (including pluto)?'") 
+
+ 
+
+    user_input8 = ""  
+
+    while True:  #makes sure the player only types a number in  
+
+        try: 
+
+            user_input8 = int(input()) 
+
+            break 
+
+        except ValueError: 
+
+            print("Invalid input. Please enter a number.") 
+
+    if user_input8 == 9: # a correct answer gives the player a star and sets the King of Hearts free 
+
+        print("Congrats! You passed!") 
+
+        print("You manage to answer the question and set the King of Hearts free. He is reunited with the rest of his suit.")  
+
+        print("Hooray! Everyone thanks you and throws a banquet in your honor.") 
+
+        print("You have earned chance, may luck be with you") 
+
+        user_inventory = apples(user_inventory) 
+
+        stars += 1 
+
+        print_health(stars) 
+
+         
+
+    else: # an incorrect answer costs the player one star but the king is still freed 
+
+        print("Incorrect. You lose a star.") 
+
+        print("Even though you failed to answer the question, the Green Joker somehow sets the King of Hearts free.") 
+
+        print("He is reunited with the rest of his suit, no thanks to you.")  
+
+        stars -= 1 
+
+        print_health(stars) 
+
+ 
+
+# this section is the start of the second door/question where the player picks between three portals  
+
+print("You are sent on your way, and end up in a cave-like room. There are three portals to pick from. [1] Red [2] Orange [3] Green") 
+
+ 
+
+user_input6 = ""  
+
+while True:  #makes sure the player only types a number in  
+
+        try: 
+
+            user_input6 = int(input()) 
+
+            break 
+
+        except ValueError: 
+
+            print("Invalid input. Please enter a number.") 
+
+if user_input6 == 1: # user chose red 
+
+    print("As you enter the red portal the Orange Joker appears and says, “Welcome! In order to proceed and unlock this door you must solve this riddle.") 
+
+    print("What has hearts but not an organ? [1] A deck of cards or [2] the Green Joker)") 
+
+    user_input10 = ""  
+
+    while True:  #makes sure the player only types a number in  
+
+        try: 
+
+            user_input10 = int(input()) 
+
+            break 
+
+        except ValueError: 
+
+            print("Invalid input. Please enter a number.") 
+
+ 
+
+    # this section takes away a star if the user answers the riddle incorrectly  
+
+    if user_input10 == 1: 
+
+        print("Congratulations! You have saved the Seven of Spades!") 
+
+    elif user_input10 == 2: 
+
+        print("Booooooo! You have failed to save the Seven of Spades! You lose a star.") 
+
+        stars -= 1 
+
+        print_health(stars) 
+
+        print("Luckily for you, the Six of Spades was able to free the Seven of Spades.") 
+
+ 
+
+#user chose orange and loses three stars 
+
+elif user_input6 == 2:  
+
+    print("Uh Oh! Bad choice! the Orange Joker bombards you with glitter and you have a coughing fit trying to clear the glitter from your lungs") 
+
+    stars -= 3 
+
+    print_health(stars) 
+
+    print("You do not save anyone, and have to face the Suit of Spades knowing you could not save their missing suit members.") 
+
+#user chose green and is automatically awarded a star 
+
+elif user_input6 ==3:  
+
+    stars += 1 
+
+    print_health(stars) 
+
+    print("Yay you picked green! You gain a star if you lost one earlier.") 
+
+    print("As you enter the green portal, the Orange Joker appears and says, “Riddle me this, what have I got in my pocket?") 
+
+    print("[1] The One Ring or [2] Chocolate") 
+
+    user_input10 = ""  
+
+    while True:  #makes sure the player only types a number in  
+
+        try: 
+
+            user_input10 = int(input()) 
+
+            break 
+
+        except ValueError: 
+
+            print("Invalid input. Please enter a number.") 
+
+ 
+
+    # this section checks the user's answer to the riddle and if they fail they lose all their stars 
+
+    if user_input10 == 1: 
+
+        print("Congratulations! You have saved the Ace of Spades!") 
+
+        print("Luck is on your side, maybe it will help you") 
+
+        user_inventory = apples(user_inventory) 
+
+    elif user_input10 == 2: 
+
+        print("Booooooo! You have failed to save the Ace of Spades! You lose all your stars.") 
+
+        stars -= 5 
+
+        print_health(stars) 
+
+ 
+
+# The section is the last door, after finishing this door end game credits will happen 
+
+print("You are then handed a spade by the Spades, and get sent digging.\nYou dig for what feels a fortnight, and eventually break into a diamond cave under the ground.") 
+
+print("There are two pathways. Do you wish to go [1] left or [2] right?") 
+
+ 
+
+user_input11 = ""  
+
+while True:  #makes sure the player only types a number in  
+
+    try: 
+
+        user_input11 = int(input()) 
+
+        break 
+
+    except ValueError: 
+
+        print("Invalid input. Please enter a number.") 
+
+if user_input11 == 1: # user chose left 
+
+    print("The Three of Diamonds is suspended in mid-air. To get her down, you must answer the Orange Joker's question.") 
+
+    print("The Orange Joker pops up and asks 'Who is the red capped Italian man who jumps for mushrooms?'") 
+
+    print("[1] Mario [2] Luigi") 
+
+    user_input = ""  
+
+    while True:  #makes sure the player only types a number in  
+
+        try: 
+
+            user_input = int(input()) 
+
+            break 
+
+        except ValueError: 
+
+            print("Invalid input. Please enter a number.") 
+
+ 
+
+    # this section checks the user's answer and changes stars depending if if they are correct or not  
+
+    if user_input == 1: 
+
+        print("Correct! You have saved the Three of Diamonds! You gain one star!") 
+
+        stars += 1 
+
+        user_inventory = apples(user_inventory) 
+
+        print_health(stars) 
+
+    elif user_input == 2: 
+
+        print("You didn't save the Three of Diamonds. You lose all five stars.") 
+
+        stars -= 5 
+
+        print_health(stars) 
+
+ 
+
+elif user_input11 == 2: #user chose right 
+
+    print("The Orange Joker pops up and asks 'Who is the yellow electric mouse that is Ash Ketchum's first Pokémon?'") 
+
+    print("[1] Pikachu [2] Charmander") 
+
+ 
+
+    user_input = ""  
+
+    while True:  #makes sure the player only types a number in  
+
+        try: 
+
+            user_input = int(input()) 
+
+            break 
+
+        except ValueError: 
+
+            print("Invalid input. Please enter a number.") 
+
+    # this section checks the user's answer and changes stars depending if if they are correct or not  
+
+    if user_input == 1: 
+
+        print("Correct! You have saved the Eight of Diamonds! They are thankful for your help, and reward you with two stars!") 
+
+        stars += 2 
+
+        print_health(stars) 
+
+    elif user_input == 2:  
+
+        print("You are unable to save the Eight of Diamonds. You lose two stars.") 
+
+        stars -= 2 
+
+        print_health(stars) 
+
+ 
+
+# End of game here, shows stars  
+
+print("Congrats! You saved all of the suits. Luckily, the Clubs were completely unharmed. You are free to go. ") 
+
+print("Here are your remaining stars:") 
+
+print_health(stars) 
+
+if "gold_coin" in user_inventory.keys(): 
+
+    print(f"You also have some loot to boot, you have {user_inventory['gold_coin']}") 
+
+print("Now for the real question. After saving all the suits, its time to play a game of chance")
+print("Are you ready to take a chance and gamble with your health to save the world form and evil robot dinosaur?")
+print("[1] for yes or [2] for not yet")
+while True:  #makes sure the player only types a number in  
+    try: 
+        user_input = int(input()) 
+        break 
+    except ValueError: 
+        print("Invalid input. Please enter a number.") 
+game = GameOfFate(user_input,user_inventory,stars)
+game.play_game()
+
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
